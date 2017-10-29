@@ -272,18 +272,7 @@ hint hints[] = {
       dialog::addItem(XLAT("Halloween mini-game"), 'z');
       },
     [] () {
-      if(!sphere) {
-        specialland = laHalloween;
-        targetgeometry = gSphere;
-        restartGame('E');
-        vid.alpha = 999;
-        vid.scale = 998;
-        }
-      else {
-        restartGame('E');
-        vid.alpha = 1;
-        vid.scale = 1;
-        }
+      restartGame('h');
       }
     },
 
@@ -538,4 +527,3 @@ void showMissionScreen() {
   
   dialog::highlight_text = contstr();
   }
-

@@ -1121,6 +1121,11 @@ void restartGame(char switchWhat, bool push) {
     chaosmode = false;
     inv::on = false;
     }
+  if(switchWhat == 'h') {
+    specialland = laHalloween;
+    if(!euclid) geometry = gSphere;
+    resetGeometry();
+    }
   initcells();
 
   if(randomPatternsMode) {
@@ -1157,4 +1162,3 @@ auto cgm = addHook(clearmemory, 40, [] () {
   butterflies.clear();
   buggycells.clear();
   });
-
