@@ -36,22 +36,26 @@ clean-local:
 	rm -rf language-data.cpp
 
 # First target made
-BUILT_SOURCES = language-data.cpp graph.cpp
+BUILT_SOURCES = language-data.cpp
 
 #############################
 # Platform specific setup
 #############################
-windres_prefix=""
-if MINGW 
-hyperrogue_SOURCES += hyper.res
-hyperrogue_CPPFLAGS += ${wincppflags}
-#hyperrogue_LDFLAGS = "-static-libgcc -static-libstdc++"
-windres_prefix += "${host_cpu}-w64-mingw32-"
 
+if MINGW 
+nodist_hyperrogue_SOURCES = hyper.res
+hyperrogue_CPPFLAGS += ${wincppflags}
+windres_prefix = ${host_cpu}-w64-mingw32-
 endif MINGW
+
+if DARWIN
+AM_CPPFLAGS = -DMAC
+hyperrogue_LDFLAGS = -framework AppKit -framework OpenGL
+endif DARWIN
 
 #############################
 # Arch specific setup
 #############################
+
 hyper.res: hyper.rc hr-icon.ico
 	${windres_prefix}windres hyper.rc -O coff -o hyper.res

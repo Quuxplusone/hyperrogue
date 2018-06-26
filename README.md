@@ -1,3 +1,7 @@
+<a href="https://travis-ci.org/Quuxplusone/hyperrogue/builds">
+<img align="right" src="https://badges.herokuapp.com/travis/Quuxplusone/hyperrogue?branch=travis-ci&env=TRAVIS_BUILD_SYSTEM=autotools&label=autotools" alt="TravisCI badge">
+<img align="right" src="https://badges.herokuapp.com/travis/Quuxplusone/hyperrogue?branch=travis-ci&env=TRAVIS_BUILD_SYSTEM=Makefile.simple&label=simple" alt="TravisCI badge">
+</a>
 
 # HyperRogue
 **Current version: 10.4b**
@@ -48,4 +52,11 @@ cd hyperrogue-git
 make
 ```
 
-There are also makefiles for OSX `Makefile.mac` and Windows MinGW `Makefile.mgw` (note: I do not use these makefiles myself, so they might be a bit outdated).
+There is also a simple Makefile for Linux, OSX, and MinGW: `Makefile.simple`.
+(Note: I do not use this Makefile myself, so it might be a bit outdated.)
+
+```
+git clone https://github.com/zenorogue/hyperrogue.git
+cd hyperrogue
+make -f Makefile.simple
+```
