@@ -1,19 +1,15 @@
 language: cpp
-sudo: required
-addons:
-  apt:
-    packages:
-      - libsdl-dev
-      - libsdl-mixer1.2-dev
-      - libsdl-gfx1.2-dev
-      - libsdl-ttf2.0-dev
-      - libglew-dev
+os:
+- linux
+- osx
 compiler:
-  - gcc
-  - clang
+- clang
+- gcc
+before_install:
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq && sudo apt-get install libglew-dev libsdl1.2-dev libsdl-gfx1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update && brew install sdl sdl_gfx sdl_mixer sdl_ttf; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then (cd /usr/local/include && ln -sf SDL/SDL.h); fi
 script:
-  - autoreconf -fiv
-  - ./configure
-  - make
-  - sudo make install
-  - ./hyperrogue --help
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then autoreconf -vi && ./configure && make install; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then make -f Makefile.mac; fi
+- ./hyper --help
