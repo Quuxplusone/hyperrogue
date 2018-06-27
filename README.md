@@ -1,6 +1,7 @@
 <a href="https://travis-ci.org/Quuxplusone/hyperrogue/builds">
 <img align="right" src="https://badges.herokuapp.com/travis/Quuxplusone/hyperrogue?branch=travis-ci&env=TRAVIS_BUILD_SYSTEM=autotools&label=autotools" alt="TravisCI badge">
 <img align="right" src="https://badges.herokuapp.com/travis/Quuxplusone/hyperrogue?branch=travis-ci&env=TRAVIS_BUILD_SYSTEM=Makefile.simple&label=simple" alt="TravisCI badge">
+<img align="right" src="https://badges.herokuapp.com/travis/Quuxplusone/hyperrogue?branch=travis-ci&env=TRAVIS_BUILD_SYSTEM=emscripten&label=web" alt="TravisCI badge">
 </a>
 
 # HyperRogue

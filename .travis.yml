@@ -1,4 +1,6 @@
 language: cpp
+services:
+  - docker
 matrix:
   include:
   - os: linux
@@ -62,6 +64,11 @@ matrix:
       HYPERROGUE_USE_GLEW=0
       HYPERROGUE_USE_PNG=0
       HYPERROGUE_USE_ROGUEVIZ=0
+  - os: linux
+    env: >-
+      TRAVIS_OS_NAME=linux
+      TRAVIS_COMPILER_NAME=emscripten
+      TRAVIS_BUILD_SYSTEM=emscripten
 
 before_install:
 - |-
@@ -113,22 +120,29 @@ before_install:
 
 script:
 - |-
-  # Build hyperrogue.
+  # Build hyperrogue
   if [[ "$TRAVIS_BUILD_SYSTEM" == "autotools" ]]; then
     autoreconf -vi
     ./configure
     make
   elif [[ "$TRAVIS_BUILD_SYSTEM" == "Makefile.simple" ]]; then
     make -f Makefile.simple
+  elif [[ "$TRAVIS_BUILD_SYSTEM" == "emscripten" ]]; then
+    docker run --rm -v $(pwd):/src trzeci/emscripten-slim emcc hyperweb.cpp -O3 -s LEGACY_GL_EMULATION=1 -s TOTAL_MEMORY=128*1024*1024 -std=c++11 -o hyper.html
   else
     exit 'Unsupported build system'
   fi
 - |-
-  # Test hyperrogue.
-  ./hyperrogue --help
+  # Test hyperrogue
+  if [[ "$TRAVIS_BUILD_SYSTEM" == "emscripten" ]]; then
+    head --bytes=1000 ./hyper.html
+    tail --bytes=1000 ./hyper.html
+  else
+    ./hyperrogue --help
+  fi
 - |-
-  # Test "make dist". ("make distcheck" is expected to fail.)
+  # Test "make dist" (we expect "make distcheck" to fail)
   if [[ "$TRAVIS_BUILD_SYSTEM" == "autotools" ]]; then make dist; fi
 - |-
-  # Test "sudo make install".
+  # Test "sudo make install"
   if [[ "$TRAVIS_BUILD_SYSTEM" == "autotools" ]]; then sudo make install; fi
