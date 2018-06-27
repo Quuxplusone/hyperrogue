@@ -29,4 +29,4 @@ move glew-2.1.0\lib\Release\x64\* lib\
 cd %APPVEYOR_BUILD_FOLDER%
 cl /std:c++latest /W2 /WX /EHsc langen.cpp
 .\langen.exe > language-data.cpp
-cl /std:c++latest /W2 /WX /EHsc /I GL-install\include /I SDL-install\include /DWINDOWS=1 /DCAP_SDLGFX=0 hyper.cpp
+cl /std:c++latest /W2 /WX /EHsc /I GL-install\include /I SDL-install\include /DWINDOWS=1 /DCAP_SDLGFX=0 /DCAP_PNG=0 hyper.cpp
