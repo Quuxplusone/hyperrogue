@@ -1,0 +1,23 @@
+environment:
+  matrix:
+  - HYPERROGUE_BUILD_SYSTEM: mingw-autotools.bat
+    MSYS2_ARCH: x86_64
+    MSYS2_DIR: msys64
+    MSYSTEM: MINGW64
+  - HYPERROGUE_BUILD_SYSTEM: msvc.bat
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    MSVC_SETUP_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat
+    MSVC_SETUP_ARG: x64
+  - HYPERROGUE_BUILD_SYSTEM: mingw.bat
+    MSYS2_ARCH: x86_64
+    MSYS2_DIR: msys64
+    MSYSTEM: MINGW64
+
+before_build:
+  - cd %APPVEYOR_BUILD_FOLDER%
+
+build_script:
+  - call %HYPERROGUE_BUILD_SYSTEM%
+
+test_script:
+  - .\hyperrogue.exe --help
