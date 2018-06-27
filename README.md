@@ -1,11 +1,13 @@
-<a href="https://travis-ci.org/Quuxplusone/hyperrogue/builds">
-<img align="right" src="https://badges.herokuapp.com/travis/Quuxplusone/hyperrogue?branch=travis-ci&env=TRAVIS_BUILD_SYSTEM=autotools&label=autotools" alt="TravisCI badge">
-<img align="right" src="https://badges.herokuapp.com/travis/Quuxplusone/hyperrogue?branch=travis-ci&env=TRAVIS_BUILD_SYSTEM=Makefile.simple&label=simple" alt="TravisCI badge">
-<img align="right" src="https://badges.herokuapp.com/travis/Quuxplusone/hyperrogue?branch=travis-ci&env=TRAVIS_BUILD_SYSTEM=emscripten&label=web" alt="TravisCI badge">
-</a>
-
 # HyperRogue
-**Current version: 10.4b**
+<p align="right">
+<a href="https://travis-ci.org/Quuxplusone/hyperrogue/builds">
+<img align="right" src="https://badges.herokuapp.com/travis/Quuxplusone/hyperrogue?branch=travis-ci&env=TRAVIS_BUILD_SYSTEM=emscripten&label=web" alt="TravisCI badge">
+<img align="right" src="https://badges.herokuapp.com/travis/Quuxplusone/hyperrogue?branch=travis-ci&env=TRAVIS_BUILD_SYSTEM=Makefile.simple&label=simple" alt="TravisCI badge">
+<img align="right" src="https://badges.herokuapp.com/travis/Quuxplusone/hyperrogue?branch=travis-ci&env=TRAVIS_BUILD_SYSTEM=autotools&label=autotools" alt="TravisCI badge">
+</a>
+</p>
+<b>Current version: 10.4g</b>
+
 
 A puzzle roguelike in the hyperbolic plane. See the [HyperRogue website](http://roguetemple.com/z/hyper.php) for detailed and most up-to-date information.
 
