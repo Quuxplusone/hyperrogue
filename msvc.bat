@@ -32,5 +32,5 @@ cl /std:c++latest /W2 /WX /EHsc langen.cpp
 cl /std:c++latest /W2 /WX /wd4068 /wd4244 /wd4805 /EHsc ^
    /I GL-install\include /I SDL-install\include ^
    /DWINDOWS=1 /DMSVC_COMPILER_LIMITS=1 /DCAP_SDLGFX=0 /DCAP_PNG=0 /DCAP_SAVE=0 hyper.cpp ^
-   GL-install/lib ^
-   SDL-install\lib\SDL.dll SDL-install\lib\SDL_mixer.dll SDL-install\lib\SDL_ttf.dll
+   GL-install\lib\glew32.lib opengl32.lib ^
+   SDL-install\lib\SDL.lib SDL-install\lib\SDL_mixer.lib SDL-install\lib\SDL_ttf.lib
