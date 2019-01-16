@@ -3,6 +3,22 @@ services:
   - docker
 matrix:
   include:
+  - os: windows
+    compiler: clang
+    env: >-
+      TRAVIS_OS_NAME=windows
+      TRAVIS_COMPILER_NAME=clang
+      TRAVIS_BUILD_SYSTEM=autotools
+      HYPERROGUE_USE_GLEW=0
+      HYPERROGUE_USE_PNG=0
+  - os: windows
+    compiler: gcc
+    env: >-
+      TRAVIS_OS_NAME=windows
+      TRAVIS_COMPILER_NAME=msvc
+      TRAVIS_BUILD_SYSTEM=msvc
+      HYPERROGUE_USE_GLEW=0
+      HYPERROGUE_USE_PNG=0
   - os: linux
     compiler: gcc
     env: >-
@@ -81,6 +97,27 @@ before_install:
     brew install sdl sdl_gfx sdl_mixer sdl_ttf
     # work around https://stackoverflow.com/questions/51034399/ for now
     (cd /usr/local/include && ln -sf SDL/SDL.h)
+  elif [[ "$TRAVIS_OS_NAME" == "windows" && "$TRAVIS_BUILD_SYSTEM" == "msvc" ]]; then
+    pushd $TEMP
+    APPVEYOR_BUILD_FOLDER=`popd`
+    powershell Invoke-WebRequest -OutFile SDL.zip -Uri https://www.libsdl.org/release/SDL-devel-1.2.15-VC.zip
+    unzip SDL.zip
+    mkdir $APPVEYOR_BUILD_FOLDER/include/SDL
+    mv SDL-1.2.15/include/*.h $APPVEYOR_BUILD_FOLDER/include/SDL/
+    mv SDL-1.2.15/lib/x64/*.* $APPVEYOR_BUILD_FOLDER/dll/
+
+    powershell Invoke-WebRequest -OutFile SDL_mixer.zip -Uri https://www.libsdl.org/projects/SDL_mixer/release/SDL_mixer-devel-1.2.12-VC.zip
+    unzip SDL_mixer.zip
+    mkdir $APPVEYOR_BUILD_FOLDER/include/SDL
+    mv SDL_mixer-1.2.12/include/*.h $APPVEYOR_BUILD_FOLDER/include/SDL/
+    mv SDL_mixer-1.2.12/lib/x64/*.* $APPVEYOR_BUILD_FOLDER/dll/
+
+    powershell Invoke-WebRequest -OutFile SDL_ttf.zip -Uri https://www.libsdl.org/projects/SDL_ttf/release/SDL_ttf-devel-2.0.11-VC.zip
+    unzip SDL_ttf.zip
+    mkdir $APPVEYOR_BUILD_FOLDER/include/SDL
+    mv SDL_ttf-2.0.11/include/*.h $APPVEYOR_BUILD_FOLDER/include/SDL/
+    mv SDL_ttf-2.0.11/lib/x64/*.* $APPVEYOR_BUILD_FOLDER/dll/
+    popd
   else
     exit 'Unsupported OS'
   fi
@@ -91,6 +128,16 @@ before_install:
       sudo apt-get install -qq libglew-dev
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       brew install glew
+    elif [[ "$TRAVIS_OS_NAME" == "windows" && "$TRAVIS_BUILD_SYSTEM" == "msvc" ]]; then
+      pushd $TEMP
+      APPVEYOR_BUILD_FOLDER=`popd`
+      powershell Invoke-WebRequest -OutFile GLEW.zip -Uri https://github.com/nigels-com/glew/releases/download/glew-2.1.0/glew-2.1.0-win32.zip
+      unzip GLEW.zip
+      mkdir $APPVEYOR_BUILD_FOLDER/include/GL
+      mv glew-2.1.0/include/GL/* $APPVEYOR_BUILD_FOLDER/include/GL/
+      mv glew-2.1.0/lib/Release/x64/* $APPVEYOR_BUILD_FOLDER/dll/
+      mv glew-2.1.0/bin/Release/x64/* $APPVEYOR_BUILD_FOLDER/dll/
+      popd
     else
       exit 'Unsupported OS'
     fi
@@ -113,6 +160,10 @@ before_install:
       echo 'autotools is installed by default'
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       brew install automake
+    elif [[ "$TRAVIS_OS_NAME" == "windows" && "$TRAVIS_COMPILER_NAME" == "mingw" ]]; then
+      pacman --noconfirm --noprogressbar -Sy automake autoconf
+    elif [[ "$TRAVIS_OS_NAME" == "windows" && "$TRAVIS_COMPILER_NAME" == "clang" ]]; then
+      pacman --noconfirm --noprogressbar -Sy automake autoconf
     else
       exit 'Unsupported OS'
     fi
@@ -127,6 +178,13 @@ script:
     make
   elif [[ "$TRAVIS_BUILD_SYSTEM" == "Makefile" ]]; then
     make -f Makefile.simple
+  elif [[ "$TRAVIS_BUILD_SYSTEM" == "msvc" ]]; then
+    PATH="C:/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/VC/Tools/MSVC/14.16.27023/bin/Hostx86/x86/;$PATH"
+    cl -std:c++latest -W2 -WX -EHsc langen.cpp
+    ./langen.exe > language-data.cpp
+    cl -std:c++latest -W2 -WX -wd4068 -wd4244 -EHsc -bigobj -I include ^
+       -DWINDOWS=1 -DCAP_SDLGFX=0 -DCAP_PNG=0 -DCAP_SAVE=0 -DCAP_ROGUEVIZ=1 hyper.cpp ^
+       opengl32.lib dll/glew32.lib dll/SDL.lib dll/SDL_mixer.lib dll/SDL_ttf.lib /Fe: hyperrogue.exe
   elif [[ "$TRAVIS_BUILD_SYSTEM" == "emscripten" ]]; then
     docker run --rm -v $(pwd):/src trzeci/emscripten make -f Makefile.simple emscripten
   else
