@@ -4,21 +4,15 @@ services:
 matrix:
   include:
   - os: windows
-    compiler: clang
-    env: >-
-      TRAVIS_OS_NAME=windows
-      TRAVIS_COMPILER_NAME=clang
-      TRAVIS_BUILD_SYSTEM=autotools
-      HYPERROGUE_USE_GLEW=0
-      HYPERROGUE_USE_PNG=0
-  - os: windows
-    compiler: gcc
     env: >-
       TRAVIS_OS_NAME=windows
       TRAVIS_COMPILER_NAME=msvc
       TRAVIS_BUILD_SYSTEM=msvc
-      HYPERROGUE_USE_GLEW=0
-      HYPERROGUE_USE_PNG=0
+  - os: windows
+    env: >-
+      TRAVIS_OS_NAME=windows
+      TRAVIS_COMPILER_NAME=msvc
+      TRAVIS_BUILD_SYSTEM=nmake
   - os: linux
     compiler: gcc
     env: >-
@@ -88,6 +82,11 @@ matrix:
 
 before_install:
 - |-
+  # Set up path to MSVC if necessary
+  if [[ "$TRAVIS_OS_NAME" == "windows" && "$TRAVIS_COMPILER_NAME" == "msvc" ]]; then
+    "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" amd64
+  fi
+- |-
   # Install SDL
   if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     sudo apt-get update -qq
@@ -98,6 +97,10 @@ before_install:
     # work around https://stackoverflow.com/questions/51034399/ for now
     (cd /usr/local/include && ln -sf SDL/SDL.h)
   elif [[ "$TRAVIS_OS_NAME" == "windows" && "$TRAVIS_BUILD_SYSTEM" == "msvc" ]]; then
+    echo 'ok whatever'
+  elif [[ "$TRAVIS_OS_NAME" == "windows" && "$TRAVIS_BUILD_SYSTEM" == "nmake" ]]; then
+    echo 'ok whatever'
+  elif [[ "$TRAVIS_OS_NAME" == "windows" && "$TRAVIS_BUILD_SYSTEM" == "msvc2" ]]; then
     pushd $TEMP
     APPVEYOR_BUILD_FOLDER=`popd`
     powershell Invoke-WebRequest -OutFile SDL.zip -Uri https://www.libsdl.org/release/SDL-devel-1.2.15-VC.zip
@@ -128,7 +131,7 @@ before_install:
       sudo apt-get install -qq libglew-dev
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       brew install glew
-    elif [[ "$TRAVIS_OS_NAME" == "windows" && "$TRAVIS_BUILD_SYSTEM" == "msvc" ]]; then
+    elif [[ "$TRAVIS_OS_NAME" == "windows" && "$TRAVIS_BUILD_SYSTEM" == "msvc2" ]]; then
       pushd $TEMP
       APPVEYOR_BUILD_FOLDER=`popd`
       powershell Invoke-WebRequest -OutFile GLEW.zip -Uri https://github.com/nigels-com/glew/releases/download/glew-2.1.0/glew-2.1.0-win32.zip
@@ -162,8 +165,6 @@ before_install:
       brew install automake
     elif [[ "$TRAVIS_OS_NAME" == "windows" && "$TRAVIS_COMPILER_NAME" == "mingw" ]]; then
       pacman --noconfirm --noprogressbar -Sy automake autoconf
-    elif [[ "$TRAVIS_OS_NAME" == "windows" && "$TRAVIS_COMPILER_NAME" == "clang" ]]; then
-      pacman --noconfirm --noprogressbar -Sy automake autoconf
     else
       exit 'Unsupported OS'
     fi
@@ -178,12 +179,14 @@ script:
     make
   elif [[ "$TRAVIS_BUILD_SYSTEM" == "Makefile" ]]; then
     make -f Makefile.simple
+  elif [[ "$TRAVIS_BUILD_SYSTEM" == "nmake" ]]; then
+    nmake -f Makefile.simple
   elif [[ "$TRAVIS_BUILD_SYSTEM" == "msvc" ]]; then
-    PATH="C:/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/VC/Tools/MSVC/14.16.27023/bin/Hostx86/x86/;$PATH"
-    cl -std:c++latest -W2 -WX -EHsc langen.cpp
+    "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" amd64
+    cl.exe -std:c++latest -W2 -WX -EHsc langen.cpp
     ./langen.exe > language-data.cpp
-    cl -std:c++latest -W2 -WX -wd4068 -wd4244 -EHsc -bigobj -I include ^
-       -DWINDOWS=1 -DCAP_SDLGFX=0 -DCAP_PNG=0 -DCAP_SAVE=0 -DCAP_ROGUEVIZ=1 hyper.cpp ^
+    cl.exe -std:c++latest -W2 -WX -wd4068 -wd4244 -EHsc -bigobj -I include \
+       -DWINDOWS=1 -DCAP_SDLGFX=0 -DCAP_PNG=0 -DCAP_SAVE=0 -DCAP_ROGUEVIZ=1 hyper.cpp \
        opengl32.lib dll/glew32.lib dll/SDL.lib dll/SDL_mixer.lib dll/SDL_ttf.lib /Fe: hyperrogue.exe
   elif [[ "$TRAVIS_BUILD_SYSTEM" == "emscripten" ]]; then
     docker run --rm -v $(pwd):/src trzeci/emscripten make -f Makefile.simple emscripten
