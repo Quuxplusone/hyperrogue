@@ -19,7 +19,7 @@ before_install:
   export msys2+='& C:\\tools\\msys64\\msys2_shell.cmd -defterm -no-start'
   export mingw64="$msys2 -mingw64 -full-path -here -c \$\* --"
   export msys2+=" -msys2 -c \$\* --"
-  $msys2 pacman --noconfirm --noprogressbar -Sy mingw-w64-x86_64-toolchain
+  $msys2 pacman --noconfirm --noprogressbar -Sy mingw-w64-x86_64-gcc
   taskkill //IM gpg-agent.exe //F  # https://travis-ci.community/t/4967
   export PATH=/C/tools/msys64/mingw64/bin:$PATH
   $msys2 which g++
@@ -60,7 +60,7 @@ before_install:
 script:
 - |-
   # Build hyperrogue.
-  $mingw64 make -f Makefile.simple CXX="${HYPERROGUE_CXX-g++}"
+  $mingw64 mingw32-make -f Makefile.simple CXX="${HYPERROGUE_CXX-g++}"
 - |-
   # Test hyperrogue.
   ./hyperrogue --help
