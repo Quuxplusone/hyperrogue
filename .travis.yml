@@ -22,6 +22,8 @@ before_install:
   $msys2 pacman --noconfirm --noprogressbar -Sy mingw-w64-x86_64-toolchain
   taskkill //IM gpg-agent.exe //F  # https://travis-ci.community/t/4967
   export PATH=/C/tools/msys64/mingw64/bin:$PATH
+  $msys2 which g++
+  $mingw64 which g++
 - |-
   # Install SDL
   $msys2 pacman --noconfirm --noprogressbar -Sy mingw-w64-x86_64-SDL mingw-w64-x86_64-SDL_gfx mingw-w64-x86_64-SDL_mixer mingw-w64-x86_64-SDL_ttf
