@@ -5,123 +5,26 @@ matrix:
   include:
   - os: windows
     env: >-
+      HYPERROGUE_USE_GLEW=1
       TRAVIS_OS_NAME=windows
       TRAVIS_BUILD_SYSTEM=Makefile
-  - os: windows
-    env: >-
-      TRAVIS_OS_NAME=windows
-      TRAVIS_BUILD_SYSTEM=autotools
-  - os: linux
-    addons:
-      apt:
-        sources:
-          - ubuntu-toolchain-r-test
-        packages:
-          - gcc-5
-          - g++-5
-    env: >-
-      TRAVIS_OS_NAME=linux
-      TRAVIS_BUILD_SYSTEM=Makefile
-      HYPERROGUE_CXX=g++-5
-      HYPERROGUE_USE_GLEW=1
-      HYPERROGUE_USE_PNG=1
-  - os: linux
-    compiler: gcc
-    env: >-
-      TRAVIS_OS_NAME=linux
-      TRAVIS_COMPILER_NAME=gcc
-      TRAVIS_BUILD_SYSTEM=autotools
-      HYPERROGUE_USE_GLEW=1
-      HYPERROGUE_USE_PNG=1
-  - os: osx
-    compiler: clang
-    env: >-
-      TRAVIS_OS_NAME=osx
-      TRAVIS_COMPILER_NAME=clang
-      TRAVIS_BUILD_SYSTEM=autotools
-      HYPERROGUE_USE_GLEW=1
-      HYPERROGUE_USE_PNG=1
-  - os: linux
-    compiler: gcc
-    env: >-
-      TRAVIS_OS_NAME=linux
-      TRAVIS_COMPILER_NAME=gcc
-      TRAVIS_BUILD_SYSTEM=Makefile
-      HYPERROGUE_USE_GLEW=1
-      HYPERROGUE_USE_PNG=1
-      HYPERROGUE_USE_ROGUEVIZ=1
-  - os: linux
-    compiler: clang
-    env: >-
-      TRAVIS_OS_NAME=linux
-      TRAVIS_COMPILER_NAME=clang
-      TRAVIS_BUILD_SYSTEM=Makefile
-      HYPERROGUE_USE_GLEW=1
-      HYPERROGUE_USE_PNG=1
-      HYPERROGUE_USE_ROGUEVIZ=1
-  - os: osx
-    compiler: gcc
-    env: >-
-      TRAVIS_OS_NAME=osx
-      TRAVIS_COMPILER_NAME=gcc
-      TRAVIS_BUILD_SYSTEM=Makefile
-      HYPERROGUE_USE_GLEW=1
-      HYPERROGUE_USE_PNG=1
-      HYPERROGUE_USE_ROGUEVIZ=1
-  - os: osx
-    compiler: clang
-    env: >-
-      TRAVIS_OS_NAME=osx
-      TRAVIS_COMPILER_NAME=clang
-      TRAVIS_BUILD_SYSTEM=Makefile
-      HYPERROGUE_USE_GLEW=1
-      HYPERROGUE_USE_PNG=1
-      HYPERROGUE_USE_ROGUEVIZ=1
-  - os: osx
-    compiler: clang
-    env: >-
-      TRAVIS_OS_NAME=osx
-      TRAVIS_COMPILER_NAME=clang
-      TRAVIS_BUILD_SYSTEM=Makefile
-      HYPERROGUE_USE_GLEW=0
-      HYPERROGUE_USE_PNG=0
-      HYPERROGUE_USE_ROGUEVIZ=0
-  - os: linux
-    env: >-
-      TRAVIS_OS_NAME=linux
-      TRAVIS_COMPILER_NAME=emscripten
-      TRAVIS_BUILD_SYSTEM=emscripten
 
 before_install:
 - |-
   # Install msys2 for Windows
-  if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
-    choco uninstall -y mingw
-    choco upgrade --no-progress -y msys2
-    export msys2='cmd //C RefreshEnv.cmd '
-    export msys2+='& set MSYS=winsymlinks:nativestrict '
-    export msys2+='& C:\\tools\\msys64\\msys2_shell.cmd -defterm -no-start'
-    export mingw64="$msys2 -mingw64 -full-path -here -c \$\* --"
-    export msys2+=" -msys2 -c \$\* --"
-    $msys2 pacman --noconfirm --noprogressbar -Sy mingw-w64-x86_64-toolchain
-    taskkill //IM gpg-agent.exe //F  # https://travis-ci.community/t/4967
-    export PATH=/C/tools/msys64/mingw64/bin:$PATH
-  fi
+  choco uninstall -y mingw
+  choco upgrade --no-progress -y msys2
+  export msys2='cmd //C RefreshEnv.cmd '
+  export msys2+='& set MSYS=winsymlinks:nativestrict '
+  export msys2+='& C:\\tools\\msys64\\msys2_shell.cmd -defterm -no-start'
+  export mingw64="$msys2 -mingw64 -full-path -here -c \$\* --"
+  export msys2+=" -msys2 -c \$\* --"
+  $msys2 pacman --noconfirm --noprogressbar -Sy mingw-w64-x86_64-toolchain
+  taskkill //IM gpg-agent.exe //F  # https://travis-ci.community/t/4967
+  export PATH=/C/tools/msys64/mingw64/bin:$PATH
 - |-
   # Install SDL
-  if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-    sudo apt-get update -qq
-    sudo apt-get install -qq libsdl1.2-dev libsdl-gfx1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev
-  elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-    brew update
-    brew install sdl sdl_gfx sdl_mixer sdl_ttf
-    # work around https://stackoverflow.com/questions/51034399/ for now
-    (cd /usr/local/include && ln -sf SDL/SDL.h)
-  elif [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
-    $msys2 pacman --noconfirm --noprogressbar -Sy mingw-w64-x86_64-SDL mingw-w64-x86_64-SDL_gfx mingw-w64-x86_64-SDL_mixer mingw-w64-x86_64-SDL_ttf
-  else
-    exit 'Unsupported OS'
-  fi
+  $msys2 pacman --noconfirm --noprogressbar -Sy mingw-w64-x86_64-SDL mingw-w64-x86_64-SDL_gfx mingw-w64-x86_64-SDL_mixer mingw-w64-x86_64-SDL_ttf
 - |-
   # Install GLEW if asked for
   if [[ "$HYPERROGUE_USE_GLEW" == "1" ]]; then
@@ -150,48 +53,15 @@ before_install:
   fi
 - |-
   # Install autotools if asked for
-  if [[ "$TRAVIS_USE_AUTOTOOLS" == "1" ]]; then
-    if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      echo 'autotools is installed by default'
-    elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      brew install automake
-    elif [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
-      $msys2 pacman --noconfirm --noprogressbar -Sy base-devel automake autoconf
-    else
-      exit 'Unsupported OS'
-    fi
-  fi
+  $msys2 pacman --noconfirm --noprogressbar -Sy base-devel automake autoconf
 
 script:
 - |-
   # Build hyperrogue.
-  if [[ "$TRAVIS_OS_NAME" == "windows" && "$TRAVIS_BUILD_SYSTEM" == "autotools" ]]; then
-    export MAKE=mingw32-make
-    $mingw64 autoreconf -vi
-    $mingw64 ./configure CXXFLAGS="-Wall -Werror -Wno-unknown-warning-option -Wno-maybe-uninitialized"
-    $mingw64 make
-  elif [[ "$TRAVIS_BUILD_SYSTEM" == "autotools" ]]; then
-    autoreconf -vi
-    ./configure CXXFLAGS="-Wall -Werror -Wno-unknown-warning-option -Wno-maybe-uninitialized"
-    make
-  elif [[ "$TRAVIS_OS_NAME" == "windows" && "$TRAVIS_BUILD_SYSTEM" == "Makefile" ]]; then
-    $msys2 mingw32-make -f Makefile.simple CXX="${HYPERROGUE_CXX-g++}"
-  elif [[ "$TRAVIS_BUILD_SYSTEM" == "Makefile" ]]; then
-    make -f Makefile.simple CXX="${HYPERROGUE_CXX-g++}"
-  elif [[ "$TRAVIS_BUILD_SYSTEM" == "emscripten" ]]; then
-    docker run --rm -v $(pwd):/src trzeci/emscripten make -f Makefile.simple emscripten
-  else
-    exit 'Unsupported build system'
-  fi
+  $mingw64 make -f Makefile.simple CXX="${HYPERROGUE_CXX-g++}"
 - |-
   # Test hyperrogue.
-  if [[ "$TRAVIS_BUILD_SYSTEM" == "emscripten" ]]; then
-    ls -lAF hyper.html hyper.js hyper.wasm
-  elif [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
-    ./hyperrogue.exe --help
-  else
-    ./hyperrogue --help
-  fi
+  ./hyperrogue --help
 - |-
   # Test "make dist". ("make distcheck" is expected to fail.)
   if [[ "$TRAVIS_BUILD_SYSTEM" == "autotools" ]]; then make dist; fi
