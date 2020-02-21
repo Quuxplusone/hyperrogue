@@ -3,6 +3,10 @@ services:
   - docker
 matrix:
   include:
+  - os: windows
+    env: >-
+      TRAVIS_OS_NAME=windows
+      TRAVIS_BUILD_SYSTEM=Makefile
   - os: linux
     addons:
       apt:
@@ -95,6 +99,8 @@ before_install:
     brew install sdl sdl_gfx sdl_mixer sdl_ttf
     # work around https://stackoverflow.com/questions/51034399/ for now
     (cd /usr/local/include && ln -sf SDL/SDL.h)
+  elif [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+    choco install sdl sdl_gfx sdl_mixer sdl_ttf
   else
     exit 'Unsupported OS'
   fi
@@ -105,6 +111,8 @@ before_install:
       sudo apt-get install -qq libglew-dev
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       brew install glew
+  elif [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+    choco install glew
     else
       exit 'Unsupported OS'
     fi
@@ -116,6 +124,8 @@ before_install:
       echo 'libpng is installed by default'
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       brew install libpng
+    elif [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+      choco install libpng
     else
       exit 'Unsupported OS'
     fi
@@ -127,6 +137,8 @@ before_install:
       echo 'autotools is installed by default'
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       brew install automake
+    elif [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+      echo 'autotools is installed by default'
     else
       exit 'Unsupported OS'
     fi
