@@ -20,12 +20,10 @@ before_install:
   export mingw64="$msys2 -mingw64 -full-path -here -c \$\* --"
   export msys2+=" -msys2 -c \$\* --"
   $msys2 pacman --noconfirm --noprogressbar -Sy mingw-w64-x86_64-toolchain
-  taskkill //IM gpg-agent.exe //F  # https://travis-ci.community/t/4967
   export PATH=/C/tools/msys64/mingw64/bin:$PATH
 - |-
+  which g++
   $mingw64 which g++
-  $mingw64 which make
-  $mingw64 which mingw32-make
 - |-
   # Install SDL
   $msys2 pacman --noconfirm --noprogressbar -Sy mingw-w64-x86_64-SDL mingw-w64-x86_64-SDL_gfx mingw-w64-x86_64-SDL_mixer mingw-w64-x86_64-SDL_ttf
@@ -62,7 +60,7 @@ before_install:
 script:
 - |-
   # Build hyperrogue.
-  $mingw64 make -d -f Makefile.simple
+  $mingw64 make -d -f Makefile.simple HYPERROGUE_CXX="$(which g++)"
 - |-
   # Test hyperrogue.
   ./hyperrogue --help
