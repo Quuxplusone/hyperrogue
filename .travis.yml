@@ -19,14 +19,15 @@ before_install:
   export msys2+='& C:\\tools\\msys64\\msys2_shell.cmd -defterm -no-start'
   export mingw64="$msys2 -mingw64 -full-path -here -c \$\* --"
   export msys2+=" -msys2 -c \$\* --"
-  $msys2 pacman --noconfirm --noprogressbar -Sy mingw-w64-x86_64-toolchain
+  $msys2 pacman --noconfirm --noprogressbar -Sy mingw-w64-toolchain
   export PATH=/C/tools/msys64/mingw64/bin:$PATH
 - |-
   which g++
   $mingw64 which g++
 - |-
   # Install SDL
-  $msys2 pacman --noconfirm --noprogressbar -Sy mingw-w64-x86_64-SDL mingw-w64-x86_64-SDL_gfx mingw-w64-x86_64-SDL_mixer mingw-w64-x86_64-SDL_ttf
+  # $msys2 pacman --noconfirm --noprogressbar -Sy mingw-w64-x86_64-SDL mingw-w64-x86_64-SDL_gfx mingw-w64-x86_64-SDL_mixer mingw-w64-x86_64-SDL_ttf
+  $msys2 pacman --noconfirm --noprogressbar -Sy mingw-w64-SDL mingw-w64-SDL_gfx mingw-w64-SDL_mixer mingw-w64-SDL_ttf
 - |-
   # Install GLEW if asked for
   if [[ "$HYPERROGUE_USE_GLEW" == "1" ]]; then
@@ -60,7 +61,7 @@ before_install:
 script:
 - |-
   # Build hyperrogue.
-  $mingw64 make -d -f Makefile.simple HYPERROGUE_CXX="$(which g++)"
+  $mingw64 make -f Makefile.simple HYPERROGUE_CXX="$(which g++)"
 - |-
   # Test hyperrogue.
   ./hyperrogue --help
