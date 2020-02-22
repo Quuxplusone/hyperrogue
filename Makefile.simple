@@ -135,19 +135,19 @@ override CXXFLAGS := $(CXXFLAGS_EARLY) $(CXXFLAGS) ${EXTRA_CXXFLAGS}
 override LDFLAGS := $(LDFLAGS_EARLY) $(LDFLAGS) ${EXTRA_LDFLAGS}
 
 hyperrogue$(EXE_EXTENSION): $(hyper_OBJS) $(hyper_RES)
-	$(CXX) $(CXXFLAGS) $(hyper_OBJS) $(hyper_RES) $(LDFLAGS) $(hyper_LDFLAGS) -o $@
+	$(CXX) -v $(CXXFLAGS) $(hyper_OBJS) $(hyper_RES) $(LDFLAGS) $(hyper_LDFLAGS) -o $@
 
 hyper$(OBJ_EXTENSION): *.cpp language-data.cpp autohdr.h
-	$(CXX) -O2 $(CXXFLAGS) $(hyper_CXXFLAGS) -c hyper.cpp -o $@
+	$(CXX) -v -O2 $(CXXFLAGS) $(hyper_CXXFLAGS) -c hyper.cpp -o $@
 
 hyper.res: hyper.rc hr-icon.ico
 	windres hyper.rc -O coff -o hyper.res
 
 langen$(EXE_EXTENSION): langen.cpp language-??.cpp language-ptbr.cpp
-	$(CXX) -O0 $(CXXFLAGS) $(langen_CXXFLAGS) langen.cpp $(LDFLAGS) -o $@
+	$(CXX) -v -O0 $(CXXFLAGS) $(langen_CXXFLAGS) langen.cpp $(LDFLAGS) -o $@
 
 makeh$(EXE_EXTENSION): makeh.cpp
-	$(CXX) makeh.cpp -o $@
+	$(CXX) -v makeh.cpp -o $@
 
 autohdr.h: makeh$(EXE_EXTENSION) *.cpp
 	./makeh classes.cpp locations.cpp hyperpoint.cpp geometry.cpp goldberg.cpp init.cpp floorshapes.cpp cell.cpp multi.cpp shmup.cpp pattern2.cpp mapeditor.cpp graph.cpp textures.cpp hprint.cpp language.cpp util.cpp complex.cpp *.cpp > autohdr.h
