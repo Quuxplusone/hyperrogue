@@ -2,9 +2,8 @@
 #
 # For Mac OS X:
 #   Run "brew install sdl" to install SDL in /usr/local.
-#   Run "brew install sdl_gfx".
-#   Run "brew install sdl_mixer".
-#   Run "brew install sdl_ttf".
+#   Run "brew install sdl_gfx sdl_mixer sdl_ttf".
+#   Or, run "brew install sdl2 sdl2_gfx sdl2_mixer sdl2_ttf" for SDL2 support.
 #   Run "make -f Makefile.simple" to build HyperRogue as ./hyperrogue.
 #
 # For MSYS2 and MinGW-w64:
@@ -49,6 +48,7 @@ ifeq (${OS},linux)
   LDFLAGS_GLEW := -lGLEW
   LDFLAGS_PNG := -lpng
   LDFLAGS_SDL := -lSDL -lSDL_gfx -lSDL_mixer -lSDL_ttf -lpthread -lz
+  LDFLAGS_SDL2 := -lSDL2 -lSDL2_gfx -lSDL2_mixer -lSDL2_ttf -lpthread -lz
   OBJ_EXTENSION := .o
   hyper_RES :=
 endif
@@ -60,6 +60,7 @@ ifeq (${OS},mingw)
   LDFLAGS_GLEW := -lglew32
   LDFLAGS_PNG := -lpng
   LDFLAGS_SDL := -lSDL -lSDL_gfx -lSDL_mixer -lSDL_ttf -lpthread -lz
+  LDFLAGS_SDL2 := -lSDL2 -lSDL2_gfx -lSDL2_mixer -lSDL2_ttf -lpthread -lz
   OBJ_EXTENSION := .o
   hyper_RES := hyper.res
   ifeq (${HYPERROGUE_USE_GLEW},)
@@ -75,6 +76,7 @@ ifeq (${OS},osx)
   LDFLAGS_GLEW := -lGLEW
   LDFLAGS_PNG := -lpng
   LDFLAGS_SDL := -lSDL -lSDLMain -lSDL_gfx -lSDL_mixer -lSDL_ttf -lpthread -lz
+  LDFLAGS_SDL2 := -lSDL2 -lSDL2Main -lSDL2_gfx -lSDL2_mixer -lSDL2_ttf -lpthread -lz
   OBJ_EXTENSION := .o
   hyper_RES :=
 endif
@@ -106,7 +108,7 @@ endif
 
 
 hyper_OBJS = hyper$(OBJ_EXTENSION)
-hyper_LDFLAGS = $(LDFLAGS_GL) $(LDFLAGS_SDL)
+hyper_LDFLAGS = $(LDFLAGS_GL)
 
 ifeq (${HYPERROGUE_USE_GLEW},1)
   CXXFLAGS_EARLY += -DCAP_GLEW=1
@@ -121,6 +123,14 @@ ifeq (${HYPERROGUE_USE_PNG},1)
   hyper_OBJS += savepng$(OBJ_EXTENSION)
 else
   CXXFLAGS_EARLY += -DCAP_PNG=0
+endif
+
+ifeq (${HYPERROGUE_USE_SDL2},1)
+  CXXFLAGS_EARLY += -DCAP_SDL2=1
+  hyper_LDFLAGS += $(LDFLAGS_SDL2)
+else
+  CXXFLAGS_EARLY += -DCAP_SDL2=0
+  hyper_LDFLAGS += $(LDFLAGS_SDL)
 endif
 
 ifeq (${HYPERROGUE_USE_ROGUEVIZ},1)

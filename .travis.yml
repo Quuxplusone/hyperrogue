@@ -45,6 +45,16 @@ matrix:
       HYPERROGUE_USE_GLEW=1
       HYPERROGUE_USE_PNG=1
       HYPERROGUE_USE_ROGUEVIZ=1
+  - os: linux                           # Linux GCC, make, Rogueviz, SDL2
+    dist: bionic
+    compiler: gcc
+    env: >-
+      TRAVIS_OS_NAME=linux
+      TRAVIS_COMPILER_NAME=gcc
+      TRAVIS_BUILD_SYSTEM=Makefile
+      HYPERROGUE_USE_GLEW=1
+      HYPERROGUE_USE_PNG=1
+      HYPERROGUE_USE_SDL2=1
   - os: linux                           # Linux Clang, make
     compiler: clang
     env: >-
@@ -62,6 +72,16 @@ matrix:
       HYPERROGUE_USE_GLEW=1
       HYPERROGUE_USE_PNG=1
       HYPERROGUE_USE_ROGUEVIZ=1
+  - os: linux                           # Linux Clang, make, Rogueviz, SDL2
+    compiler: clang
+    env: >-
+      TRAVIS_OS_NAME=linux
+      TRAVIS_COMPILER_NAME=clang
+      TRAVIS_BUILD_SYSTEM=Makefile
+      HYPERROGUE_USE_GLEW=1
+      HYPERROGUE_USE_PNG=1
+      HYPERROGUE_USE_ROGUEVIZ=1
+      HYPERROGUE_USE_SDL2=1
   - os: osx                             # OSX, make
     compiler: clang
     env: >-
@@ -70,6 +90,15 @@ matrix:
       TRAVIS_BUILD_SYSTEM=Makefile
       HYPERROGUE_USE_GLEW=1
       HYPERROGUE_USE_PNG=1
+  - os: osx                             # OSX, make, SDL2
+    compiler: clang
+    env: >-
+      TRAVIS_OS_NAME=osx
+      TRAVIS_COMPILER_NAME=clang
+      TRAVIS_BUILD_SYSTEM=Makefile
+      HYPERROGUE_USE_GLEW=1
+      HYPERROGUE_USE_PNG=1
+      HYPERROGUE_USE_SDL2=1
   - os: osx                             # OSX, make, no libpng
     compiler: clang
     env: >-
@@ -105,6 +134,17 @@ matrix:
       HYPERROGUE_USE_GLEW=1
       HYPERROGUE_USE_PNG=1
       HYPERROGUE_USE_ROGUEVIZ=1
+  - os: linux                           # Linux GCC, mymake, Rogueviz, SDL2
+    dist: bionic
+    compiler: gcc
+    env: >-
+      TRAVIS_OS_NAME=linux
+      TRAVIS_COMPILER_NAME=gcc
+      TRAVIS_BUILD_SYSTEM=mymake
+      HYPERROGUE_USE_GLEW=1
+      HYPERROGUE_USE_PNG=1
+      HYPERROGUE_USE_ROGUEVIZ=1
+      HYPERROGUE_USE_SDL2=1
   - os: osx                             # OSX, mymake
     compiler: clang
     env: >-
@@ -122,6 +162,16 @@ matrix:
       HYPERROGUE_USE_GLEW=1
       HYPERROGUE_USE_PNG=1
       HYPERROGUE_USE_ROGUEVIZ=1
+  - os: osx                             # OSX, mymake, Rogueviz, SDL2
+    compiler: clang
+    env: >-
+      TRAVIS_OS_NAME=osx
+      TRAVIS_COMPILER_NAME=clang
+      TRAVIS_BUILD_SYSTEM=mymake
+      HYPERROGUE_USE_GLEW=1
+      HYPERROGUE_USE_PNG=1
+      HYPERROGUE_USE_ROGUEVIZ=1
+      HYPERROGUE_USE_SDL2=1
   - os: linux                           # Emscripten
     env: >-
       TRAVIS_OS_NAME=linux
@@ -130,17 +180,29 @@ matrix:
 
 before_install:
 - |-
-  # Install SDL
-  if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-    sudo apt-get update -qq
-    sudo apt-get install -qq libsdl1.2-dev libsdl-gfx1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev
-  elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-    brew update
-    brew install sdl sdl_gfx sdl_mixer sdl_ttf
-    # work around https://stackoverflow.com/questions/51034399/ for now
-    (cd /usr/local/include && ln -sf SDL/SDL.h)
+  # Install SDL if asked for
+  if [[ "$HYPERROGUE_USE_SDL2" == "1" ]]; then
+    if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      sudo apt-get update -qq
+      sudo apt-get install -qq libsdl2-dev libsdl2-gfx-dev libsdl2-mixer-dev libsdl2-ttf-dev
+    elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      brew update
+      brew install sdl2 sdl2_gfx sdl2_mixer sdl2_ttf
+    else
+      exit 'Unsupported OS'
+    fi
   else
-    exit 'Unsupported OS'
+    if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      sudo apt-get update -qq
+      sudo apt-get install -qq libsdl1.2-dev libsdl-gfx1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev
+    elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      brew update
+      brew install sdl sdl_gfx sdl_mixer sdl_ttf
+      # work around https://stackoverflow.com/questions/51034399/ for now
+      (cd /usr/local/include && ln -sf SDL/SDL.h)
+    else
+      exit 'Unsupported OS'
+    fi
   fi
 - |-
   # Install GLEW if asked for
@@ -187,11 +249,14 @@ script:
     make -f Makefile.simple
   elif [[ "$TRAVIS_BUILD_SYSTEM" == "mymake" ]]; then
     make -f Makefile.simple mymake
+    HYPERROGUE_MYMAKE_ARGS=""
     if [[ "$HYPERROGUE_USE_ROGUEVIZ" == "1" ]]; then
-      ./mymake -rv
-    else
-      ./mymake
+      HYPERROGUE_MYMAKE_ARGS+=" -rv"
     fi
+    if [[ "$HYPERROGUE_USE_SDL2" == "1" ]]; then
+      HYPERROGUE_MYMAKE_ARGS+=" -sdl2"
+    fi
+    ./mymake $HYPERROGUE_MYMAKE_ARGS
   elif [[ "$TRAVIS_BUILD_SYSTEM" == "emscripten" ]]; then
     docker run --rm -v $(pwd):/src trzeci/emscripten make -f Makefile.simple emscripten
   else
